@@ -1,0 +1,42 @@
+﻿@model LibraryMs.Models.Student
+
+@{
+    ViewData["Title"] = "Register Student";
+}
+
+<div class="container-fluid">
+    <p class="display-6">REGISTER NEW STUDENT</p>
+<hr />
+<div class="row table-body">
+    <div class="col-md-6">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label my-3"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AdminNumber" class="control-label my-3"></label>
+                <input asp-for="AdminNumber" class="form-control" />
+                <span asp-validation-for="AdminNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FormID" class="control-label my-3"></label>
+                <select asp-for="FormID" class ="form-control" asp-items="ViewBag.FormID"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Register" class="btn btn-primary my-3" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index" class="btn btn-success mt-3">Back to List</a>
+</div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

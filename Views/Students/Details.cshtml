@@ -1,0 +1,99 @@
+﻿@model LibraryMs.Models.StudentBorrowings
+
+@{
+    ViewData["Title"] = "Student Details";
+}
+
+
+
+<div class="container-fluid">
+    <p class="display-6">STUDENT DETAILS</p>
+    <hr />
+    <dl class="row table-body">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Student.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Student.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Student.AdminNumber)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Student.AdminNumber)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Student.Form)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Student.Form.Name)
+        </dd>
+    </dl>
+    <div class="container-fluid">
+        <h6 class="text-center">ISSUED BOOKS</h6>
+        <div class="row table-body">
+            <table class="table table-body">
+                <thead>
+                    <tr>
+                        <th>
+                            #
+                        </th>
+                        <th>
+                            Issue Date
+                        </th>
+                        <th>
+                            Subject
+                        </th>
+                        <th>
+                            Book Serial NO.
+                        </th>
+                        <th>Student Admin NO.</th>
+                        <th>Due Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if(Model.Borrowings != null)
+                    {
+                        
+                            int counter = 1;
+                        
+                        foreach (var item in Model.Borrowings)
+                        {
+                            <tr>
+                                <td >@counter</td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.RegisterDate)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.CurrentBook.Title)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.CurrentBook.SerialNumber)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.CurrentStudent.AdminNumber)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ReturnDate)
+                                </td>
+                                <td>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Return</a>
+                                </td>
+                            </tr>
+                            counter++;
+                        }
+                    }
+                    else  
+                    {
+                        <p class="text-center">No Currently Issued Books To This Student</p>
+                    }
+                </tbody>
+           </table>
+        </div>
+    </div>
+</div>
+<div>
+    <a asp-action="Index" class="btn btn-success mx-2 my-3">Back to List</a>
+</div>
+</div>
