@@ -44,10 +44,10 @@
                         <a class="nav-link text-white" asp-area="" asp-controller="Forms" asp-action="Index"><i class="fas fa-school mx-1"></i> Manage Student Forms </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" asp-area="" asp-controller="Borrowings" asp-action="Index"><i class="fas fa-bars mx-1"></i>OverDue Issuance </a>
+                        <a class="nav-link text-white" asp-area="" asp-controller="Borrowings" asp-action="OverDue"><i class="fas fa-bars mx-1"></i>OverDue Issuance </a>
                     </li>
                      <li class="nav-item">
-                        <a class="nav-link text-white" asp-area="" asp-controller="Borrowings" asp-action="Index"><i class="fas fa-bars mx-1"></i> Issuance&Return History </a>
+                        <a class="nav-link text-white" asp-area="" asp-controller="Borrowings" asp-action="IssuanceHistory"><i class="fas fa-bars mx-1"></i> Issuance&Return History </a>
                     </li>
                 </ul>
             </div>
@@ -65,6 +65,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @await Component.InvokeAsync("Notyf")
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -7,16 +7,18 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LibraryMs.Data;
 using LibraryMs.Models;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace LibraryMs.Controllers
 {
     public class BooksController : Controller
     {
         private readonly LibraryMsContext _context;
-
-        public BooksController(LibraryMsContext context)
+        private readonly INotyfService _notyf;
+        public BooksController(LibraryMsContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
 
         // GET: Books

@@ -4,6 +4,7 @@ using LibraryMs.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryMs.Migrations
 {
     [DbContext(typeof(LibraryMsContext))]
-    partial class LibraryMsContextModelSnapshot : ModelSnapshot
+    [Migration("20211216100919_updated borrowing model added returned date, set some fields nullable")]
+    partial class updatedborrowingmodeladdedreturneddatesetsomefieldsnullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -69,19 +71,14 @@ namespace LibraryMs.Migrations
                     b.Property<string>("Issued")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("IssuedBy")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("RegisterDate")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ReturnDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ReturnedBy")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime?>("ReturnedDate")
+                        .IsRequired()
                         .HasColumnType("datetime2");
 
                     b.Property<int>("StudentID")

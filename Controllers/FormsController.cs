@@ -7,16 +7,18 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LibraryMs.Data;
 using LibraryMs.Models;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace LibraryMs.Controllers
 {
     public class FormsController : Controller
     {
         private readonly LibraryMsContext _context;
-
-        public FormsController(LibraryMsContext context)
+        private readonly INotyfService _notyf;
+        public FormsController(LibraryMsContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
 
         // GET: Forms

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LibraryMs.Data;
 using LibraryMs.Models;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace LibraryMs.Controllers
 {
@@ -14,9 +15,11 @@ namespace LibraryMs.Controllers
     {
         private readonly LibraryMsContext _context;
 
-        public BorrowingsController(LibraryMsContext context)
+        private readonly INotyfService _notyf;
+        public BorrowingsController(LibraryMsContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
 
         // GET: Borrowings
@@ -44,6 +47,8 @@ namespace LibraryMs.Controllers
             var libraryMsContext = borrowings.Where(b => b.Issued == "Yes")
                 .Include(b => b.CurrentBook)
                 .Include(b => b.CurrentStudent);
+
+            //  _notyf.Success("Success Notification");
             return View(await libraryMsContext.ToListAsync());
             }
             catch (Exception)
@@ -59,6 +64,8 @@ namespace LibraryMs.Controllers
             {
                 return NotFound();
             }
+            try
+            { 
 
             var borrowing = await _context.Borrowing
                 .Include(b => b.CurrentBook)
@@ -70,14 +77,30 @@ namespace LibraryMs.Controllers
             }
 
             return View(borrowing);
+            }
+            catch (Exception)
+            {
+                _notyf.Error("Something Went Wrong, Kindly Try Again!!!");
+                return RedirectToAction(nameof(Index));
+
+            }
         }
 
         // GET: Borrowings/Create
         public IActionResult Create()
         {
+            try
+            {
             ViewData["BookID"] = new SelectList(_context.Book, "Id", "SerialNumber");
             ViewData["StudentID"] = new SelectList(_context.Student, "Id", "AdminNumber");
             return View();
+            }
+            catch(Exception)
+            {
+                _notyf.Error("Something Went Wrong, Kindly Try Again!!!");
+                return RedirectToAction(nameof(Index));
+
+            }
         }
 
         // POST: Borrowings/Create
@@ -85,7 +108,7 @@ namespace LibraryMs.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,StudentID,BookID,RegisterDate, Issued, ReturnDate")] Borrowing borrowing)
+        public async Task<IActionResult> Create([Bind("Id,StudentID,BookID,RegisterDate, ReturnDate")] Borrowing borrowing)
         {
             // checking if model valid
             if (ModelState.IsValid)
@@ -93,19 +116,44 @@ namespace LibraryMs.Controllers
                 //checking if Due date greater than today,now
                 if(borrowing.ReturnDate <= DateTime.Now)
                 {
-                    ViewData["BookID"] = new SelectList(_context.Book, "Id", "SerialNumber", borrowing.BookID);
-                    ViewData["StudentID"] = new SelectList(_context.Student, "Id", "AdminNumber", borrowing.StudentID);
+                     ViewData["BookID"] = new SelectList(_context.Book, "Id", "SerialNumber", borrowing.BookID);
+                     ViewData["StudentID"] = new SelectList(_context.Student, "Id", "AdminNumber", borrowing.StudentID);
+                    _notyf.Error("Due Date Must Be Greater Than or Equals To Todays Date.");
                     return View(borrowing);
+                    
                 }
-                borrowing.Issued = "Yes";
-                borrowing.RegisterDate = DateTime.Now;
-                _context.Add(borrowing);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    borrowing.Issued = "Yes";
+                    borrowing.RegisterDate = DateTime.Now;
+                    _context.Add(borrowing);
+                    await _context.SaveChangesAsync();
+                    _notyf.Success("Book Issued Successfully.");
+                    return RedirectToAction(nameof(Index));
+                }
+                catch( Exception)
+                 {
+                    _notyf.Error("Something Went Wrong, Kindly Try Again!!!");
+                    return RedirectToAction(nameof(Index));
+
+                }
             }
-            ViewData["BookID"] = new SelectList(_context.Book, "Id", "SerialNumber", borrowing.BookID);
-            ViewData["StudentID"] = new SelectList(_context.Student, "Id", "AdminNumber", borrowing.StudentID);
-            return View(borrowing);
+            else
+            { 
+                try
+                {
+                ViewData["BookID"] = new SelectList(_context.Book, "Id", "SerialNumber", borrowing.BookID);
+                ViewData["StudentID"] = new SelectList(_context.Student, "Id", "AdminNumber", borrowing.StudentID);
+                _notyf.Error("Kindly Make sure The Form is Correctly Filled!!!");
+                return View(borrowing);
+                }
+                catch (Exception)
+                {
+                    _notyf.Error("Something Went Wrong, Kindly Try Again!!!");
+                    return RedirectToAction(nameof(Index));
+
+                }
+            }
         }
 
         // GET: Borrowings/Edit/5
@@ -115,15 +163,23 @@ namespace LibraryMs.Controllers
             {
                 return NotFound();
             }
-
-            var borrowing = await _context.Borrowing.FindAsync(id);
-            if (borrowing == null)
-            {
-                return NotFound();
+            try
+            { 
+                var borrowing = await _context.Borrowing.FindAsync(id);
+                if (borrowing == null)
+                {
+                    return NotFound();
+                }
+                ViewData["BookID"] = new SelectList(_context.Book, "Id", "SerialNumber", borrowing.BookID);
+                ViewData["StudentID"] = new SelectList(_context.Student, "Id", "AdminNumber", borrowing.StudentID);
+                return View(borrowing);
             }
-            ViewData["BookID"] = new SelectList(_context.Book, "Id", "SerialNumber", borrowing.BookID);
-            ViewData["StudentID"] = new SelectList(_context.Student, "Id", "AdminNumber", borrowing.StudentID);
-            return View(borrowing);
+            catch (Exception)
+            {
+                _notyf.Error("Something Went Wrong, Kindly Try Again!!!");
+                return RedirectToAction(nameof(Index));
+
+            }
         }
 
         // POST: Borrowings/Edit/5
@@ -131,7 +187,7 @@ namespace LibraryMs.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,StudentID,BookID,RegisterDate, ReturnDate")] Borrowing borrowing)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,StudentID,BookID,RegisterDate ,ReturnDate")] Borrowing borrowing)
         {
             if (id != borrowing.Id)
             {
@@ -142,8 +198,19 @@ namespace LibraryMs.Controllers
             {
                 try
                 {
+                    if(borrowing.ReturnDate < borrowing.RegisterDate)
+                    {
+                        ViewData["BookID"] = new SelectList(_context.Book, "Id", "SerialNumber", borrowing.BookID);
+                        ViewData["StudentID"] = new SelectList(_context.Student, "Id", "AdminNumber", borrowing.StudentID);
+                        _notyf.Error("Due Date Must Be Greater Than or Equals To Issue Date.");
+                        return View(borrowing);
+                        
+
+                    }
                     _context.Update(borrowing);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Book Issuance Updated Successfully.");
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -156,14 +223,15 @@ namespace LibraryMs.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
             ViewData["BookID"] = new SelectList(_context.Book, "Id", "SerialNumber", borrowing.BookID);
             ViewData["StudentID"] = new SelectList(_context.Student, "Id", "AdminNumber", borrowing.StudentID);
+            _notyf.Error("Updated UnSuccessfully, Kindly try Again");
             return View(borrowing);
         }
 
         // GET: Borrowings/Delete/5
+        /*
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -182,6 +250,7 @@ namespace LibraryMs.Controllers
 
             return View(borrowing);
         }
+        
 
         // POST: Borrowings/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -193,6 +262,7 @@ namespace LibraryMs.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        */
 
         [HttpPost, ActionName("Return")]
         [ValidateAntiForgeryToken]
@@ -207,14 +277,83 @@ namespace LibraryMs.Controllers
                 var borrowing = await _context.Borrowing.FindAsync(id);
                 borrowing.Issued = "No";
                 await _context.SaveChangesAsync();
+                _notyf.Success("Book Returned Successfully.");
                 return RedirectToAction(nameof(Index));
 
             }
             catch(Exception)
             {
-                throw;
+                _notyf.Error("Book Returned Unsuccessfully, Kindly try again.");
+                return RedirectToAction(nameof(Index));
             }
             
+        }
+        public async Task<IActionResult> IssuanceHistory(string searchString)
+        {
+            var borrowings = from m in _context.Borrowing
+                             select m;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                try
+                {
+                    borrowings = borrowings.Where(b => b.Issued == "No")
+                        .Include(b => b.CurrentBook)
+                        .Where(o => o.CurrentBook.SerialNumber.Contains(searchString))
+                        .Include(b => b.CurrentStudent);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+            try
+            {
+                var libraryMsContext = borrowings.Where(b => b.Issued == "No")
+                    .Include(b => b.CurrentBook)
+                    .Include(b => b.CurrentStudent);
+                return View(await libraryMsContext.ToListAsync());
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IActionResult> OverDue(string searchString)
+        {
+            var borrowings = from m in _context.Borrowing
+                             select m;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                try
+                {
+                    borrowings = borrowings
+                        .Where(b => b.Issued == "Yes")
+                        .Where(b => b.ReturnDate <= DateTime.Now)
+                        .Include(b => b.CurrentBook)
+                        .Where(o => o.CurrentBook.SerialNumber.Contains(searchString))
+                        .Include(b => b.CurrentStudent);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+            try
+            {
+                var libraryMsContext = borrowings
+                    .Where(b => b.Issued == "Yes")
+                    .Where(b => b.ReturnDate <= DateTime.Now)
+                    .Include(b => b.CurrentBook)
+                    .Include(b => b.CurrentStudent);
+                return View(await libraryMsContext.ToListAsync());
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
 

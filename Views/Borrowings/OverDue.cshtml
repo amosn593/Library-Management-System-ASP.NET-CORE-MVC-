@@ -1,0 +1,100 @@
+﻿@model IEnumerable<LibraryMs.Models.Borrowing>
+
+@{
+    ViewData["Title"] = "OverDue Issuance";
+}
+
+<div class="container-fluid">
+    <p class="display-6">OVERDUE ISSUANCE</p>
+    <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-8">
+                    <form method="get" class="row" asp-controller="Borrowings" asp-action="OverDue">
+                        <div class="col-md-3">
+                                <label class="col-form-label">Book Serial No.</label>
+                        </div>
+                        <div class="col-md-7">
+                                 <input type="text" name="SearchString" class="form-control" required />
+                        </div>
+                        <div class="col-md-2">
+                             <button type="submit" class="btn btn-primary mb-3">Search</button>
+                        </div>
+   
+                   </form>
+               </div>
+               
+            </div>
+        </div>
+        <hr />
+    <table class="table ">
+        <thead class="table-head">
+            <tr>
+                <th>#</th>
+                <th>
+                    @Html.DisplayNameFor(model => model.RegisterDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CurrentStudent.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CurrentStudent.AdminNumber)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CurrentBook.Title)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CurrentBook.SerialNumber)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CurrentBook.Form.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Issued)
+                </th>
+                 <th>@Html.DisplayNameFor(model => model.ReturnDate)</th>
+                 <th></th>
+            </tr>
+        </thead>
+        <tbody class="table-body">
+@if(Model != null)
+    {
+        int counter = 1;
+    foreach (var item in Model) {
+            var tm = "#myModal" + item.Id;
+            var mid = "myModal" + item.Id;
+            <tr>
+                <td>@counter</td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RegisterDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CurrentStudent.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CurrentStudent.AdminNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CurrentBook.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CurrentBook.SerialNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CurrentBook.Form.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Issued)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReturnDate)
+                </td>
+                <td>
+                    
+                </td>
+            </tr>
+            counter++;
+    }
+}
+        </tbody>
+    </table>
+</div>

@@ -4,6 +4,7 @@ using LibraryMs.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryMs.Migrations
 {
     [DbContext(typeof(LibraryMsContext))]
-    partial class LibraryMsContextModelSnapshot : ModelSnapshot
+    [Migration("20211216101357_updated borrowing model added returned date, set some fields nullable, added issued and returned by fields")]
+    partial class updatedborrowingmodeladdedreturneddatesetsomefieldsnullableaddedissuedandreturnedbyfields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

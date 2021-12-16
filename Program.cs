@@ -1,12 +1,20 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using LibraryMs.Data;
+using AspNetCoreHero.ToastNotification;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<LibraryMsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("LibraryMsContext")));
 
 // Add services to the container.
+builder.Services.AddNotyf(config =>
+{
+    config.DurationInSeconds = 6;
+    config.IsDismissable = true;
+    config.Position = NotyfPosition.TopRight;
+});
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
