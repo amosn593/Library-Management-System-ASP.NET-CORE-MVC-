@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using LibraryMs.Data;
 using LibraryMs.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryMs.Controllers
 {
+    [Authorize]
     public class FormsController : Controller
     {
         private readonly LibraryMsContext _context;
@@ -24,7 +26,16 @@ namespace LibraryMs.Controllers
         // GET: Forms
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Form.ToListAsync());
+            try
+            {
+                return View(await _context.Form.ToListAsync());
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
         }
 
         // GET: Forms/Details/5
@@ -50,7 +61,15 @@ namespace LibraryMs.Controllers
         // GET: Forms/Create
         public IActionResult Create()
         {
-            return View();
+            try
+            {
+                return View();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
         }
 
         // POST: Forms/Create
@@ -62,11 +81,39 @@ namespace LibraryMs.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(form);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    if (_context.Form.Where(c => c.Name == form.Name).Any())
+                    {
+                        _notyf.Error("This Form Name is Already Registered.");
+                        return View(form);
+
+                    }
+                    _context.Add(form);
+                    await _context.SaveChangesAsync();
+                    _notyf.Success("Form Registered Successfully.");
+                    return RedirectToAction(nameof(Index));
+
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+
             }
-            return View(form);
+            else
+            {
+                try
+                {
+                    return View(form);
+
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+            
         }
 
         // GET: Forms/Edit/5

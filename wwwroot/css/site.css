@@ -3,16 +3,21 @@
     margin:0px;
     box-sizing:border-box;
 }
-body {
-    margin-bottom: 60px;
-}
 html {
-  font-size: 12px;
+    font-size: 12px;
 }
+
 html {
     position: relative;
     min-height: 100%;
+    font-family: 'Roboto', sans-serif;
 }
+body {
+    margin-bottom: 60px;
+    font-family: 'Roboto', sans-serif;
+    background-color: #F5F5F5 !important;
+}
+
 
 .main-container {
     background-color: #F5F5F5 !important;
@@ -44,6 +49,14 @@ html {
     font-size: 14px;
     padding: 10px !important;
     border-radius:5px
+}
+
+/* Auth*/
+.auth-header{
+    padding: 10px;
+    background: green;
+    border-radius: 5px;
+    color: #fff;
 }
 
 @media (min-width: 768px) {

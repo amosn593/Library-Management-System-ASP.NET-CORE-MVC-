@@ -37,12 +37,17 @@
                 <th>
                     @Html.DisplayNameFor(model => model.RegisterDate)
                 </th>
+               
                 <th>
-                    @Html.DisplayNameFor(model => model.CurrentStudent)
+                    @Html.DisplayNameFor(model => model.CurrentStudent.AdminNumber)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.CurrentBook)
+                    @Html.DisplayNameFor(model => model.CurrentBook.Title)
                 </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CurrentBook.SerialNumber)
+                </th>
+                
                 <th>
                     @Html.DisplayNameFor(model => model.Issued)
                 </th>
@@ -62,12 +67,17 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.RegisterDate)
                 </td>
+                 
                 <td>
                     @Html.DisplayFor(modelItem => item.CurrentStudent.AdminNumber)
                 </td>
                 <td>
+                    @Html.DisplayFor(modelItem => item.CurrentBook.Title)
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.CurrentBook.SerialNumber)
                 </td>
+                
                 <td>
                     @Html.DisplayFor(modelItem => item.Issued)
                 </td>
@@ -75,11 +85,11 @@
                     @Html.DisplayFor(modelItem => item.ReturnDate)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary">Edit</a> 
+                   <!--<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary">Edit</a> -->
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary">Details</a>
                     <!-- Button trigger modal -->
                      <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="@tm">
-                    Return
+                    Return Book
                     </button>
                     <!-- Modal -->
                     <div class="modal fade" id="@mid" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"  aria-labelledby="staticBackdropLabel" aria-hidden="true">

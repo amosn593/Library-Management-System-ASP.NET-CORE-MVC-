@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using LibraryMs.Data;
 using LibraryMs.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryMs.Controllers
 {
+    [Authorize]
     public class StudentsController : Controller
     {
         private readonly LibraryMsContext _context;
@@ -36,7 +38,7 @@ namespace LibraryMs.Controllers
                         .Include(s => s.Form);
                     return View(await libraryMsContext.ToListAsync());
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception)
                 {
                     throw;
                 }
@@ -47,7 +49,7 @@ namespace LibraryMs.Controllers
                 var libraryMsContext = students.Include(s => s.Form);
                 return View(await libraryMsContext.ToListAsync());
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception)
             {
                 throw;
             }
@@ -62,32 +64,55 @@ namespace LibraryMs.Controllers
                 return NotFound();
             }
 
-            var model = new StudentBorrowings();
-
-            model.Student = await _context.Student
-                .Include(s => s.Form)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            model.Borrowings = await _context.Borrowing
-                .Where(d => d.StudentID == id)
-                .Where(c => c.Issued == "Yes")
-                .Include(b => b.CurrentBook)
-                .Include(b => b.CurrentStudent)
-                .ToListAsync();
-
-            if (model.Student == null)
+            try
             {
-                return NotFound();
+                var model = new StudentBorrowings();
+
+                model.Student = await _context.Student
+                    .Include(s => s.Form)
+                    .FirstOrDefaultAsync(m => m.Id == id);
+
+                model.Borrowings = await _context.Borrowing
+                    .Where(d => d.StudentID == id)
+                    .Where(c => c.Issued == "Yes")
+                    .Include(b => b.CurrentBook)
+                    .Include(b => b.CurrentStudent)
+                    .ToListAsync();
+
+                if (model.Student == null)
+                {
+                    return NotFound();
+                }
+
+                return View(model);
+
+            }
+            catch (Exception)
+            {
+                _notyf.Error("Something Went Wrong, Kindly Try Again!!!");
+                return RedirectToAction(nameof(Index));
+
             }
 
-            return View(model);
+
         }
 
         // GET: Students/Create
         public IActionResult Create()
         {
-            ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name");
-            return View();
+            try
+            {
+                ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name");
+                return View();
+
+            }
+            catch (Exception)
+            {
+                _notyf.Error("Something Went Wrong, Kindly Try Again!!!");
+                return RedirectToAction(nameof(Index));
+
+            }
+
         }
 
         // POST: Students/Create
@@ -100,18 +125,41 @@ namespace LibraryMs.Controllers
             if (ModelState.IsValid)
             {
                 try
-                { 
-                _context.Add(student);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                {
+                    // Checking if book already registered
+                    if (_context.Student.Where(c => c.AdminNumber == student.AdminNumber).Any())
+                    {
+                        ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", student.FormID);
+                        _notyf.Error("This Student Admission Number is Already Registered.");
+                        return View(student);
+
+                    }
+                    _context.Add(student);
+                    await _context.SaveChangesAsync();
+                    _notyf.Success("Student Registered Successfully.");
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception)
                 {
                     throw;
                 }
             }
-            ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", student.FormID);
-            return View(student);
+            else
+            {
+                try
+                {
+                    ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", student.FormID);
+                    return View(student);
+
+                }
+                catch (Exception)
+                {
+                    _notyf.Error("Something Went Wrong, Kindly Try Again!!!");
+                    return RedirectToAction(nameof(Index));
+
+                }
+            }
+            
         }
 
         // GET: Students/Edit/5
@@ -121,14 +169,25 @@ namespace LibraryMs.Controllers
             {
                 return NotFound();
             }
-
-            var student = await _context.Student.FindAsync(id);
-            if (student == null)
+            try
             {
-                return NotFound();
+                var student = await _context.Student.FindAsync(id);
+                if (student == null)
+                {
+                    return NotFound();
+                }
+                ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", student.FormID);
+                return View(student);
+
             }
-            ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", student.FormID);
-            return View(student);
+            catch (Exception)
+            {
+                _notyf.Error("Something Went Wrong, Kindly Try Again!!!");
+                return RedirectToAction(nameof(Index));
+
+            }
+
+
         }
 
         // POST: Students/Edit/5
@@ -147,7 +206,16 @@ namespace LibraryMs.Controllers
             {
                 try
                 {
+                    // Checking if book already registered
+                    if (_context.Student.Where(c => c.AdminNumber == student.AdminNumber).Count() > 1)
+                    {
+                        ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", student.FormID);
+                        _notyf.Error("This Student Admission Number is Already Registered.");
+                        return View(student);
+
+                    }
                     _context.Update(student);
+                    _notyf.Success("Student Updated Successfully.");
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -163,8 +231,20 @@ namespace LibraryMs.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", student.FormID);
-            return View(student);
+            else
+            {
+                try
+                {
+                    ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", student.FormID);
+                    return View(student);
+
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+            
         }
 
         // GET: Students/Delete/5
@@ -208,6 +288,31 @@ namespace LibraryMs.Controllers
             {
                 throw;
             }
+        }
+        [HttpPost, ActionName("Return")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Returned_Book(int? id)
+        {
+            if(id == null)
+            {
+                return NotFound();
+            }
+            try
+            {
+                var borrowing = await _context.Borrowing.FindAsync(id);
+                borrowing.Issued = "No";
+                int student_id = borrowing.StudentID;
+                await _context.SaveChangesAsync();
+                _notyf.Success("Book Returned Successfully.");
+                return RedirectToAction(nameof(StudentsController.Details), new { id = student_id });
+
+            }
+            catch(Exception)
+            {
+                _notyf.Error("Book Returned Unsuccessfully, Kindly try again.");
+                return RedirectToAction(nameof(Index));
+            }
+            
         }
 
         private bool StudentExists(int id)

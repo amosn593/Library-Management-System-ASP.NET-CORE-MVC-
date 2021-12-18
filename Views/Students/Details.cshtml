@@ -55,11 +55,12 @@
                 <tbody>
                     @if(Model.Borrowings != null)
                     {
-                        
-                            int counter = 1;
+                        int counter = 1;
                         
                         foreach (var item in Model.Borrowings)
                         {
+                            var tm = "#myModal" + item.Id;
+                            var mid = "myModal" + item.Id;
                             <tr>
                                 <td >@counter</td>
                                 <td>
@@ -78,7 +79,31 @@
                                     @Html.DisplayFor(modelItem => item.ReturnDate)
                                 </td>
                                 <td>
-                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Return</a>
+                                   <!-- Button trigger modal -->
+                                     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="@tm">
+                                    Return Book
+                                    </button>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="@mid" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"  aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                   <h5 class="modal-title" id="staticBackdropLabel">Return Confirmation</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">     
+                                                     <p class="my-3">Are you sure you want to Return this Book?</p>
+                                                        <form method="post"  asp-action="Return" asp-route-id="@item.Id" >
+                                                           <button type="submit" class="btn btn-danger mx-2">Return </button>
+                                                           <button type="button" class="btn btn-success mx-2" data-bs-dismiss="modal">Cancel</button>
+                                                        </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                             counter++;
@@ -86,14 +111,13 @@
                     }
                     else  
                     {
-                        <p class="text-center">No Currently Issued Books To This Student</p>
+                        
                     }
                 </tbody>
            </table>
         </div>
     </div>
 </div>
-<div>
-    <a asp-action="Index" class="btn btn-success mx-2 my-3">Back to List</a>
-</div>
+<div class="container">
+    <a asp-action="Index" class="btn btn-success mx-2 my-3 ">Back to List</a>
 </div>

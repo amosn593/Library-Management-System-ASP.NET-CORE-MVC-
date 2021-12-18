@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using LibraryMs.Data;
 using LibraryMs.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryMs.Controllers
 {
+    [Authorize]
     public class BooksController : Controller
     {
         private readonly LibraryMsContext _context;
@@ -29,14 +31,37 @@ namespace LibraryMs.Controllers
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                books = books
-                    .Where(s => s.SerialNumber!.Contains(searchString))
-                    .OrderBy(c => c.RegisterDate);
+                try
+                {
+                    books = books
+                    .Where(s => s.SerialNumber!.Contains(searchString));
+
+                    var libraryMsContext = books
+                        .OrderBy(c => c.RegisterDate)
+                        .Include(b => b.Form);
+                    return View(await libraryMsContext.ToListAsync());
+
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+                
             }
-            var libraryMsContext = books
-                .OrderBy(c => c.RegisterDate)
-                .Include(b => b.Form);
-            return View(await libraryMsContext.ToListAsync());
+            try
+            {
+
+                var libraryMsContext = books
+                    .OrderBy(c => c.RegisterDate)
+                    .Include(b => b.Form);
+                return View(await libraryMsContext.ToListAsync());
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
         }
 
         // GET: Books/Details/5
@@ -46,23 +71,43 @@ namespace LibraryMs.Controllers
             {
                 return NotFound();
             }
+            try
+            { 
 
-            var book = await _context.Book
-                .Include(b => b.Form)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (book == null)
-            {
-                return NotFound();
+                var book = await _context.Book
+                    .Include(b => b.Form)
+                    .FirstOrDefaultAsync(m => m.Id == id);
+                if (book == null)
+                {
+                    return NotFound();
+                }
+
+                return View(book);
             }
+            catch (Exception)
+            {
+                _notyf.Error("Something Went Wrong, Kindly Try Again!!!");
+                return RedirectToAction(nameof(Index));
 
-            return View(book);
+            }
         }
 
         // GET: Books/Create
         public IActionResult Create()
         {
-            ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name");
-            return View();
+            try
+            {
+                ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name");
+                return View();
+
+            }
+            catch (Exception)
+            {
+                _notyf.Error("Something Went Wrong, Kindly Try Again!!!");
+                return RedirectToAction(nameof(Index));
+
+            }
+
         }
 
         // POST: Books/Create
@@ -76,20 +121,43 @@ namespace LibraryMs.Controllers
             {
                 try
                 {
+                    // Checking if book already registered
+                    if (_context.Book.Where(c => c.SerialNumber == book.SerialNumber).Any())
+                    {
+                        ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", book.FormID);
+                        _notyf.Error("This Book Serial Number is Already Registered.");
+                        return View(book);
+
+                    }
                     book.RegisterDate = DateTime.Now;
                     _context.Add(book);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Book Registered Successfully.");
                     return RedirectToAction(nameof(Index));
 
                 }
-                catch(Exception )
+                catch (Exception)
                 {
                     throw;
                 }
-               
+
             }
-            ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", book.FormID);
-            return View(book);
+            else
+            {
+                try
+                {
+                    ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", book.FormID);
+                    return View(book);
+
+                }
+                catch (Exception)
+                {
+                    _notyf.Error("Something Went Wrong, Kindly Try Again!!!");
+                    return RedirectToAction(nameof(Index));
+
+                }
+
+            }
         }
 
         // GET: Books/Edit/5
@@ -99,14 +167,25 @@ namespace LibraryMs.Controllers
             {
                 return NotFound();
             }
-
-            var book = await _context.Book.FindAsync(id);
-            if (book == null)
+            try
             {
-                return NotFound();
+                var book = await _context.Book.FindAsync(id);
+                if (book == null)
+                {
+                    return NotFound();
+                }
+                ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", book.FormID);
+                return View(book);
+
             }
-            ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", book.FormID);
-            return View(book);
+            catch (Exception)
+            {
+                _notyf.Error("Something Went Wrong, Kindly Try Again!!!");
+                return RedirectToAction(nameof(Index));
+
+            }
+
+
         }
 
         // POST: Books/Edit/5
@@ -125,7 +204,16 @@ namespace LibraryMs.Controllers
             {
                 try
                 {
+                    // Checking if book already registered
+                    if (_context.Book.Where(c => c.SerialNumber == book.SerialNumber).Count()>1)
+                    {
+                        ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", book.FormID);
+                        _notyf.Error("This Book Serial Number is Already Registered.");
+                        return View(book);
+
+                    }
                     _context.Update(book);
+                    _notyf.Success("Book Updated Successfully.");
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -141,11 +229,24 @@ namespace LibraryMs.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", book.FormID);
-            return View(book);
+            else
+            {
+                try
+                {
+                    ViewData["FormID"] = new SelectList(_context.Form, "Id", "Name", book.FormID);
+                    return View(book);
+
+                }
+                catch(Exception)
+                {
+                    throw;
+                }
+            }
+            
         }
 
         // GET: Books/Delete/5
+        /*
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -163,17 +264,23 @@ namespace LibraryMs.Controllers
 
             return View(book);
         }
+        */
 
         // POST: Books/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int? id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
             try
             { 
                 var book = await _context.Book.FindAsync(id);
                 _context.Book.Remove(book);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Book Deleted Successfully.");
                 return RedirectToAction(nameof(Index));
             }
             catch( DbUpdateConcurrencyException)

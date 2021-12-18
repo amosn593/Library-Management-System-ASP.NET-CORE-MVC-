@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using LibraryMs.Data;
 using LibraryMs.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryMs.Controllers
 {
+    [Authorize]
     public class BorrowingsController : Controller
     {
         private readonly LibraryMsContext _context;
@@ -113,6 +115,15 @@ namespace LibraryMs.Controllers
             // checking if model valid
             if (ModelState.IsValid)
             {
+                // check if book already issued
+                if(_context.Borrowing.Where(c => c.BookID == borrowing.BookID).Where(c => c.Issued == "Yes").Any())
+                {
+                    ViewData["BookID"] = new SelectList(_context.Book, "Id", "SerialNumber", borrowing.BookID);
+                    ViewData["StudentID"] = new SelectList(_context.Student, "Id", "AdminNumber", borrowing.StudentID);
+                    _notyf.Error("This Book is Already Issued to Another Student.");
+                    return View(borrowing);
+
+                }
                 //checking if Due date greater than today,now
                 if(borrowing.ReturnDate <= DateTime.Now)
                 {
@@ -157,6 +168,7 @@ namespace LibraryMs.Controllers
         }
 
         // GET: Borrowings/Edit/5
+        /*
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -198,7 +210,13 @@ namespace LibraryMs.Controllers
             {
                 try
                 {
-                    if(borrowing.ReturnDate < borrowing.RegisterDate)
+                    // check if book already issued
+                   // if (_context.Borrowing.Where(c => c.BookID == borrowing.BookID).Where(c => c.Issued == "Yes").Any())
+                   // {
+
+                    //}
+                    // Checking if RegisterDate(Issued Date) is Greater Than ReturnDate(Due Date)
+                    if (borrowing.ReturnDate < borrowing.RegisterDate)
                     {
                         ViewData["BookID"] = new SelectList(_context.Book, "Id", "SerialNumber", borrowing.BookID);
                         ViewData["StudentID"] = new SelectList(_context.Student, "Id", "AdminNumber", borrowing.StudentID);
@@ -229,6 +247,7 @@ namespace LibraryMs.Controllers
             _notyf.Error("Updated UnSuccessfully, Kindly try Again");
             return View(borrowing);
         }
+        */
 
         // GET: Borrowings/Delete/5
         /*
