@@ -25,14 +25,15 @@ namespace LibraryMs.Models
         [Display(Name = "Returned Date")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        public DateTime? ReturnedDate { get; set; } = null;
+        public DateTime? ReturnedDate { get; set; }
 
 
-        [Display(Name = "Issued By")]
+        [Display(Name = "Issuing Officer")]
         public string IssuedBy { get; set; } = "Yes";
 
-        [Display(Name = "Returned By")]
+        [Display(Name = "Returning Officer")]
         public string ReturnedBy { get; set; } = "Yes";
+
 
         // Navigation Properties
         [Display(Name = "Student No.")]

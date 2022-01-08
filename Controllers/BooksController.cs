@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryMs.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "AllUsers")]
     public class BooksController : Controller
     {
         private readonly LibraryMsContext _context;
@@ -267,6 +267,7 @@ namespace LibraryMs.Controllers
         */
 
         // POST: Books/Delete/5
+        [Authorize(Policy = "PrincipalUsers")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int? id)

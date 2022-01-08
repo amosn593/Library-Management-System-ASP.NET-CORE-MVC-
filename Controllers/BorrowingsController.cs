@@ -9,24 +9,35 @@ using LibraryMs.Data;
 using LibraryMs.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using LibraryMs.Areas.Identity.Data;
 
 namespace LibraryMs.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "AllUsers")]
     public class BorrowingsController : Controller
     {
         private readonly LibraryMsContext _context;
 
         private readonly INotyfService _notyf;
-        public BorrowingsController(LibraryMsContext context, INotyfService notyf)
+        private readonly UserManager<ApplicationUser> _userManager;
+        
+        public BorrowingsController(
+            LibraryMsContext context, 
+            INotyfService notyf, 
+            UserManager<ApplicationUser> userManager
+            )
         {
             _context = context;
             _notyf = notyf;
+            _userManager = userManager;
+           
         }
 
         // GET: Borrowings
         public async Task<IActionResult> Index(string searchString)
         {
+
             var borrowings = from m in _context.Borrowing
                         select m;
 
@@ -135,8 +146,10 @@ namespace LibraryMs.Controllers
                 }
                 try
                 {
+                    var user = await _userManager.GetUserAsync(User);
                     borrowing.Issued = "Yes";
                     borrowing.RegisterDate = DateTime.Now;
+                    borrowing.IssuedBy = user.StaffNumber;
                     _context.Add(borrowing);
                     await _context.SaveChangesAsync();
                     _notyf.Success("Book Issued Successfully.");
@@ -169,118 +182,7 @@ namespace LibraryMs.Controllers
 
         // GET: Borrowings/Edit/5
         /*
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            try
-            { 
-                var borrowing = await _context.Borrowing.FindAsync(id);
-                if (borrowing == null)
-                {
-                    return NotFound();
-                }
-                ViewData["BookID"] = new SelectList(_context.Book, "Id", "SerialNumber", borrowing.BookID);
-                ViewData["StudentID"] = new SelectList(_context.Student, "Id", "AdminNumber", borrowing.StudentID);
-                return View(borrowing);
-            }
-            catch (Exception)
-            {
-                _notyf.Error("Something Went Wrong, Kindly Try Again!!!");
-                return RedirectToAction(nameof(Index));
-
-            }
-        }
-
-        // POST: Borrowings/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,StudentID,BookID,RegisterDate ,ReturnDate")] Borrowing borrowing)
-        {
-            if (id != borrowing.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    // check if book already issued
-                   // if (_context.Borrowing.Where(c => c.BookID == borrowing.BookID).Where(c => c.Issued == "Yes").Any())
-                   // {
-
-                    //}
-                    // Checking if RegisterDate(Issued Date) is Greater Than ReturnDate(Due Date)
-                    if (borrowing.ReturnDate < borrowing.RegisterDate)
-                    {
-                        ViewData["BookID"] = new SelectList(_context.Book, "Id", "SerialNumber", borrowing.BookID);
-                        ViewData["StudentID"] = new SelectList(_context.Student, "Id", "AdminNumber", borrowing.StudentID);
-                        _notyf.Error("Due Date Must Be Greater Than or Equals To Issue Date.");
-                        return View(borrowing);
-                        
-
-                    }
-                    _context.Update(borrowing);
-                    await _context.SaveChangesAsync();
-                    _notyf.Success("Book Issuance Updated Successfully.");
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!BorrowingExists(borrowing.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-            }
-            ViewData["BookID"] = new SelectList(_context.Book, "Id", "SerialNumber", borrowing.BookID);
-            ViewData["StudentID"] = new SelectList(_context.Student, "Id", "AdminNumber", borrowing.StudentID);
-            _notyf.Error("Updated UnSuccessfully, Kindly try Again");
-            return View(borrowing);
-        }
-        */
-
-        // GET: Borrowings/Delete/5
-        /*
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var borrowing = await _context.Borrowing
-                .Include(b => b.CurrentBook)
-                .Include(b => b.CurrentStudent)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (borrowing == null)
-            {
-                return NotFound();
-            }
-
-            return View(borrowing);
-        }
-        
-
-        // POST: Borrowings/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var borrowing = await _context.Borrowing.FindAsync(id);
-            _context.Borrowing.Remove(borrowing);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+       
         */
 
         [HttpPost, ActionName("Return")]
@@ -293,8 +195,11 @@ namespace LibraryMs.Controllers
             }
             try
             {
+                var user = await _userManager.GetUserAsync(User);
                 var borrowing = await _context.Borrowing.FindAsync(id);
                 borrowing.Issued = "No";
+                borrowing.ReturnedDate = DateTime.Now;
+                borrowing.ReturnedBy = user.StaffNumber;
                 await _context.SaveChangesAsync();
                 _notyf.Success("Book Returned Successfully.");
                 return RedirectToAction(nameof(Index));

@@ -10,27 +10,39 @@
 
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-10">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="StudentID" class="control-label">Student ADMIN NO.</label>
-                <select asp-for="StudentID" class ="form-control" asp-items="ViewBag.StudentID"></select>
+            <div class="row my-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="StudentID" class="control-label">Student ADMIN NO.</label>
+                        <select asp-for="StudentID" class ="form-control" asp-items="ViewBag.StudentID"></select>
+                    </div>
+                    
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="BookID" class="control-label">Book Serial NO.</label>
+                        <select asp-for="BookID" class ="form-control" asp-items="ViewBag.BookID"></select>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="BookID" class="control-label">Book Serial NO.</label>
-                <select asp-for="BookID" class ="form-control" asp-items="ViewBag.BookID"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="RegisterDate" class="control-label"></label>
-                <input asp-for="RegisterDate" class="form-control" />
-                <span asp-validation-for="RegisterDate" class="text-danger"></span>
-            </div>
-            
-            <div class="form-group">
-                <label asp-for="ReturnDate" class="control-label"></label>
-                <input asp-for="ReturnDate" class="form-control" />
-                <span asp-validation-for="ReturnDate" class="text-danger"></span>
+            <div class="row my-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="RegisterDate" class="control-label"></label>
+                        <input asp-for="RegisterDate" class="form-control" />
+                        <span asp-validation-for="RegisterDate" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ReturnDate" class="control-label"></label>
+                        <input asp-for="ReturnDate" class="form-control" />
+                        <span asp-validation-for="ReturnDate" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
             <div class="form-group">
                 <input type="submit" value="Issue Book" class="btn btn-primary mt-3" />
