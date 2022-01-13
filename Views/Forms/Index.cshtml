@@ -31,7 +31,9 @@
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary mx-2">Edit</a> 
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary mx-2">Edit</a>
+                @if ((await AuthorizationService.AuthorizeAsync(User, "Admin&PrincipalUsers")).Succeeded)
+                    {
             
                     <!-- Button trigger modal -->
                      <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="@tm">
@@ -59,7 +61,7 @@
                             </div>
                         </div>
                     </div>
-
+                }
             </td>
 
         </tr>

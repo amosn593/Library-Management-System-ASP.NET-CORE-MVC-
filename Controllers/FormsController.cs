@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryMs.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "AllUsers")]
     public class FormsController : Controller
     {
         private readonly LibraryMsContext _context;
@@ -116,6 +116,7 @@ namespace LibraryMs.Controllers
             
         }
 
+        [Authorize(Policy = "LibraryUsers, AdminUsers")]
         // GET: Forms/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -135,6 +136,7 @@ namespace LibraryMs.Controllers
         // POST: Forms/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Policy = "LibraryUsers, AdminUsers")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Form form)
@@ -186,6 +188,7 @@ namespace LibraryMs.Controllers
         }
 
         // POST: Forms/Delete/5
+        [Authorize(Policy = "Admin&PrincipalUsers")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int? id)

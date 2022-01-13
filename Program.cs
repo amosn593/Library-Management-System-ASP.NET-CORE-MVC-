@@ -33,6 +33,8 @@ builder.Services.AddAuthorization( options => {
       policy => policy.RequireRole("Librarian", "Student"));
     options.AddPolicy("PrincipalUsers",
       policy => policy.RequireRole("Principal"));
+    options.AddPolicy("Admin&PrincipalUsers",
+      policy => policy.RequireRole("Principal", "Admin"));
     options.AddPolicy("AdminUsers",
       policy => policy.RequireRole("Admin"));
 });

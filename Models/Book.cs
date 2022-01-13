@@ -27,6 +27,12 @@ namespace LibraryMs.Models
         public int FormID { get; set; }
         [Display(Name = "Book Form")]
         public Form Form { get; set; }
+
+       // [Display(Name = "Book Source")]
+       // public int BookSourceID { get; set; }
+       // [Display(Name = "Book Source")]
+       // public Form BookSource { get; set; }
+
         public ICollection<Borrowing> Borrowings { get; set; }
 
 

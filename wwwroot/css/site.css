@@ -5,6 +5,7 @@
 }
 html {
     font-size: 12px;
+    max-width: 100%;
 }
 
 html {
@@ -31,6 +32,18 @@ body {
 }
 .side-menu > ul {
    list-style-type: none;
+}
+
+.active{
+    background-color: #666 !important;
+    color: white;
+    border-radius: 5px;
+}
+
+.myNavItem:hover {
+    background-color: #666 !important;
+    color: white;
+    border-radius: 5px;
 }
 
 .main-main {
@@ -63,6 +76,12 @@ body {
     html {
     font-size: 16px;
   }
+}
+
+@media screen and (max-width: 576px) {
+    * {
+        border: 1px solid red;
+    }
 }
 
 
