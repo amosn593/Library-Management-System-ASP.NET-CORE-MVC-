@@ -9,6 +9,8 @@ using LibraryMs.Data;
 using LibraryMs.Models;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using LibraryMs.Areas.Identity.Data;
 
 namespace LibraryMs.Controllers
 {
@@ -17,10 +19,13 @@ namespace LibraryMs.Controllers
     {
         private readonly LibraryMsContext _context;
         private readonly INotyfService _notyf;
-        public BooksController(LibraryMsContext context, INotyfService notyf)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public BooksController(LibraryMsContext context, 
+            INotyfService notyf, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _notyf = notyf;
+            _userManager = userManager;
         }
 
         // GET: Books
@@ -129,6 +134,8 @@ namespace LibraryMs.Controllers
                         return View(book);
 
                     }
+                    var user = await _userManager.GetUserAsync(User);
+                    book.RegisteredBy = user.StaffNumber;
                     book.RegisterDate = DateTime.Now;
                     _context.Add(book);
                     await _context.SaveChangesAsync();

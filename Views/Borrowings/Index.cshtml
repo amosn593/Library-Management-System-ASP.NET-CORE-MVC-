@@ -28,7 +28,7 @@
                   </p>
                </div>
             </div>
-            <a  asp-controller= "ExcelReport" asp-action="Index" class="btn btn-warning"> <i class="fas fa-expand px-1" aria-hidden="true"></i>Export To Excel</a>
+            <a  asp-controller= "ExcelReport" asp-action="BorrowingReport" class="btn btn-warning"> <i class="fas fa-expand px-1" aria-hidden="true"></i>Export To CSV</a>
      </div>
         <hr />
     <table class="table ">
@@ -87,7 +87,7 @@
                 </td>
                 <td>
                    <!--<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary">Edit</a> -->
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary">Details</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-secondary">Details</a>
                     <!-- Button trigger modal -->
                      <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="@tm">
                     Return Book

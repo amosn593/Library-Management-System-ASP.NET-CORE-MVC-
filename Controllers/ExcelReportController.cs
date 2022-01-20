@@ -1,11 +1,12 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
-using LibraryMs.Areas.Identity.Data;
+using System.IO;
+using System.Data;
 using LibraryMs.Data;
-using LibraryMs.Models;
-using Microsoft.AspNetCore.Identity;
+using LibraryMs.ExcelReports;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using System.Text;
 
 namespace LibraryMs.Controllers
 {
@@ -14,22 +15,23 @@ namespace LibraryMs.Controllers
         private readonly LibraryMsContext _context;
 
         private readonly INotyfService _notyf;
-        private readonly UserManager<ApplicationUser> _userManager;
+        
 
         public ExcelReportController(
             LibraryMsContext context,
-            INotyfService notyf,
-            UserManager<ApplicationUser> userManager
+            INotyfService notyf
+            
             )
         {
             _context = context;
             _notyf = notyf;
-            _userManager = userManager;
+            
 
         }
-        public async Task<IActionResult> Index()
+        // Borrowings report
+        public  async Task<IActionResult> BorrowingReport()
         {
-            var file = new FileInfo(@"C:\Users\amos ndonga\Downloads\c#.xlsx");
+            var file = new FileInfo(@"C:\Users\amos ndonga\Downloads\BookIssuance.xlsx");
 
             var borrowings = from m in _context.Borrowing
                              select m;
@@ -42,8 +44,55 @@ namespace LibraryMs.Controllers
                 //  _notyf.Success("Success Notification");
                 var books = await libraryMsContext.ToListAsync();
 
-                 await Savebook(books, file);
-                return RedirectToAction("Index", "Borrowings", new { area = "" });
+
+                // creating Borrowing Report
+                var report =  BorrowingSetUp.BorrowingData(books);
+
+                // Creating a CSV file
+                var builder = new StringBuilder();
+                builder.AppendLine("IssueDate, IssuingOfficer, DueDate, StudentName, StudentAdminNo.," +
+                    "BookTitle, BookSerialNo.");
+                foreach (var bk in report)
+                {
+                    builder.AppendLine($"{bk.IssueDate},{bk.IssuingOfficer},{bk.DueDate}," +
+                        $"{bk.StudentName}, {bk.StudentAdminNo}, {bk.BookTitle},{bk.BookSerialNo}");
+                }
+
+                return File(Encoding.UTF8.GetBytes(builder.ToString()), "text/csv", "BookIssuance.csv");
+
+
+            }
+
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+       
+
+        //Books Report
+        public async Task<IActionResult> BooksReport(string searchString)
+        {
+            var file = new FileInfo(@"C:\Users\amos ndonga\Downloads\BooksReport.xlsx");
+
+            var books = from m in _context.Book
+                        select m;
+            try
+            {
+
+                var libraryMsContext = books
+                    .OrderBy(c => c.RegisterDate)
+                    .Include(b => b.Form);
+
+                var report = await libraryMsContext.ToListAsync();
+
+                var data = BorrowingSetUp.BooksData(report);
+
+
+                await Savebooks(data, file);
+                return RedirectToAction("Index", "Books", new { area = "" });
+
             }
             catch (Exception)
             {
@@ -51,13 +100,13 @@ namespace LibraryMs.Controllers
             }
         }
 
-        private static async Task Savebook(List<Borrowing> books, FileInfo file)
+        private static async Task Savebooks(List<BookReport> books, FileInfo file)
         {
-            if( file.Exists)
+            if (file.Exists)
             {
                 file.Delete();
             }
-            using(var package = new  ExcelPackage(file))
+            using (var package = new ExcelPackage(file))
             {
                 var wb = package.Workbook.Worksheets.Add("Main Report");
 
@@ -68,5 +117,59 @@ namespace LibraryMs.Controllers
 
             }
         }
+
+        // OverDue report
+        public async Task<IActionResult> OverDueReport()
+        {
+            var file = new FileInfo(@"C:\Users\amos ndonga\Downloads\OverDueIssuance.xlsx");
+
+            var borrowings = from m in _context.Borrowing
+                             select m;
+            try
+            {
+                var libraryMsContext = borrowings.Where(b => b.Issued == "Yes")
+                    .Include(b => b.CurrentBook)
+                    .Include(b => b.CurrentStudent);
+
+                //  _notyf.Success("Success Notification");
+                var books = await libraryMsContext.ToListAsync();
+
+
+                // creating Borrowing Report
+                var report = BorrowingSetUp.OverDueData(books);
+
+
+                await SaveOverDue(report, file);
+                return RedirectToAction("OverDue", "Borrowings", new { area = "" });
+
+
+            }
+
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private static async Task SaveOverDue(List<OverDueReport> books, FileInfo file)
+        {
+            if (file.Exists)
+            {
+                file.Delete();
+            }
+            using (var package = new ExcelPackage(file))
+            {
+                var wb = package.Workbook.Worksheets.Add("Main Report");
+
+                var range = wb.Cells["A1"].LoadFromCollection(books, true);
+                range.AutoFitColumns();
+
+                await package.SaveAsync();
+
+            }
+        }
+
+
     }
+
 }

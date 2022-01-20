@@ -21,6 +21,8 @@ namespace LibraryMs.Models
         [Display(Name = "Book Serial NO.")]
         [Required]
         public string SerialNumber { get; set; }
+        [Display(Name = "Registered By")]
+        public string? RegisteredBy { get; set; }
 
         // Navigation Properties
         [Display(Name = "Book Form")]

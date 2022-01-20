@@ -41,9 +41,5 @@ namespace LibraryMs.Models
         [Display(Name = "Book Serial No.")]
         public Book CurrentBook { get; set; }
 
-
-
-
-
     }
 }

@@ -22,8 +22,12 @@
    
                    </form>
                </div>
+               <div class="col-md-3 offset-1 justify-content-end">
+                   <a  asp-controller= "ExcelReport" asp-action="OverDueReport" class="btn btn-warning"> <i class="fas fa-expand px-1" aria-hidden="true"></i>Export To Excel</a>
+               </div>
                
             </div>
+            
         </div>
         <hr />
     <table class="table ">
@@ -65,7 +69,7 @@
             <tr>
                 <td>@counter</td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.RegisterDate)
+                    <p class="btn btn-secondary">@Html.DisplayFor(modelItem => item.RegisterDate)</p>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.IssuedBy)
